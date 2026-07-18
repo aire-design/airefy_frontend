@@ -40,6 +40,19 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
+const BIO_WORD_LIMIT = 100;
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+/** Truncate to the first BIO_WORD_LIMIT words, preserving original whitespace. */
+function clampToWordLimit(text: string): string {
+  if (countWords(text) <= BIO_WORD_LIMIT) return text;
+  const match = text.match(new RegExp(`^(?:\\s*\\S+){0,${BIO_WORD_LIMIT}}`));
+  return match ? match[0] : text;
+}
+
 export default function ProfilePage() {
   const { user, token, loading: authLoading, login: authLogin } = useAuth();
   const router = useRouter();
@@ -222,15 +235,16 @@ export default function ProfilePage() {
             <textarea
               id="bio"
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e) => setBio(clampToWordLimit(e.target.value))}
               placeholder="Write a short note about yourself — what you do, what you write about…"
-              maxLength={300}
-              rows={3}
+              rows={4}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
             />
             <div className="mt-1 flex items-center justify-between">
               <Toggle checked={showBio} onChange={setShowBio} label="Show bio on my public profile" />
-              <p className="text-xs text-gray-400">{bio.length}/300</p>
+              <p className={`text-xs ${countWords(bio) >= BIO_WORD_LIMIT ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                {countWords(bio)}/{BIO_WORD_LIMIT} words
+              </p>
             </div>
           </div>
         </div>
