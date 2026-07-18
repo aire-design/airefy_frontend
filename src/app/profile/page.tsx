@@ -40,7 +40,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
-const BIO_WORD_LIMIT = 100;
+const BIO_WORD_LIMIT = 1000;
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
