@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python -c \"import secrets; print\\(secrets.token_urlsafe\\(48\\)\\)\")",
+      "Bash(sc query *)",
+      "PowerShell(Get-Process -Name \"Docker Desktop\",\"com.docker.backend\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force -Confirm:$false)",
+      "Bash(.venv/Scripts/python -m pip install -q --retries 10 --timeout 60 pytest)",
+      "Bash(.venv/Scripts/python -m pytest tests/ -q)",
+      "Bash(where psql *)",
+      "Bash(DATABASE_URL=\"sqlite:///./dev.db\" .venv/Scripts/python -m uvicorn app.main:app --port 8000)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/api/articles)",
+      "Bash(curl -s --max-time 240 http://localhost:3000)",
+      "Bash(curl -s --max-time 5 http://localhost:8000/)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:8000/api/my-articles -w \" [%{http_code}]\")",
+      "Bash(sqlite3 dev.db \"SELECT id, username, email FROM users;\")",
+      "Bash(curl -s --max-time 5 http://localhost:8000/api/certifications)",
+      "Bash(curl -s --max-time 60 http://localhost:3000/certifications)",
+      "Bash(curl -s -o /dev/null -w \"certifications page: [%{http_code}]\" --max-time 180 http://localhost:3000/certifications)",
+      "Bash(curl -s -o /dev/null -w \"manage page: [%{http_code}]\" --max-time 120 http://localhost:3000/certifications/manage)"
+    ]
+  }
+}

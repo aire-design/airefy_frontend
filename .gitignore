@@ -1,6 +1,22 @@
+<<<<<<< HEAD
 .next/
 out/
 node_modules/
 .env.local
 *.log
 tsconfig.tsbuildinfo
+=======
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+backend/.venv/
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/*.db
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+>>>>>>> af02a31 (feat: update guest commenting prompt to include sign in link, add untracked project files)
