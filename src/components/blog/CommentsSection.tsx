@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { getComments, createComment, deleteComment } from '@/lib/api';
 import type { Comment } from '@/types';
@@ -101,9 +100,7 @@ export default function CommentsSection({ documentId }: CommentsSectionProps) {
             <div className="mt-2 flex items-center justify-between gap-2">
               {!user && (
                 <p className="text-xs text-gray-400">
-                  Commenting as a guest.{' '}
-                  <Link href="/login" className="underline hover:text-gray-700">Sign in</Link>{' '}
-                  for a richer experience.
+                  Comment as a guest
                 </p>
               )}
               <div className="ml-auto">
