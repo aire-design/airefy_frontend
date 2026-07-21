@@ -49,7 +49,7 @@ const AlignJustifyIcon = (
 );
 
 /** Wraps selected text (or a placeholder) in an HTML alignment div. */
-function makeAlignCmd(align: 'left' | 'center' | 'right' | 'justify', icon: React.ReactNode): ICommand {
+function makeAlignCmd(align: 'left' | 'center' | 'right' | 'justify', icon: React.ReactElement): ICommand {
   return {
     name: `align-${align}`,
     keyCommand: `align-${align}`,
