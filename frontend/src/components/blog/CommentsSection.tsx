@@ -101,7 +101,7 @@ export default function CommentsSection({ documentId }: CommentsSectionProps) {
             <div className="mt-2 flex items-center justify-between gap-2">
               {!user && (
                 <p className="text-xs text-gray-400">
-                  Commenting as a guest. <Link href="/login" className="text-brand-500 hover:text-brand-600 transition-colors underline-offset-2 hover:underline">Sign in</Link> for a richer experience.
+                  Commenting as a guest.
                 </p>
               )}
               <div className="ml-auto">
