@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import MDEditor, { commands, type ICommand } from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
-import { uploadMedia, getMediaUrl } from '@/lib/api';
+import { uploadMedia } from '@/lib/api';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface MarkdownEditorProps {
@@ -163,8 +163,10 @@ export default function MarkdownEditor({
         setUploading(true);
         try {
           const [uploaded] = await uploadMedia(file, token);
-          const url = getMediaUrl(uploaded.url);
-          api.replaceSelection(`\n![${file.name}](${url})\n`);
+          // Store the raw relative path (/uploads/...) so the article renderer
+          // can resolve it via getMediaUrl() against the correct backend URL
+          // for each environment (Vercel → Render, local → localhost:8000).
+          api.replaceSelection(`\n![${file.name}](${uploaded.url})\n`);
         } catch {
           alert('Image upload failed. Please try again.');
         } finally {
