@@ -23,6 +23,45 @@ const UploadIcon = (
   </svg>
 );
 
+/* ── Alignment icons ── */
+const AlignLeftIcon = (
+  <svg viewBox="0 0 16 16" width="12px" height="12px" fill="currentColor">
+    <path d="M2 3.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Z"/>
+  </svg>
+);
+
+const AlignCenterIcon = (
+  <svg viewBox="0 0 16 16" width="12px" height="12px" fill="currentColor">
+    <path d="M4 3.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Zm-2 3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm2 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Zm-2 3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Z"/>
+  </svg>
+);
+
+const AlignRightIcon = (
+  <svg viewBox="0 0 16 16" width="12px" height="12px" fill="currentColor">
+    <path d="M2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11Zm4 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7Zm-4 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11Zm4 3a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7Z"/>
+  </svg>
+);
+
+const AlignJustifyIcon = (
+  <svg viewBox="0 0 16 16" width="12px" height="12px" fill="currentColor">
+    <path d="M2 3.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5Zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5Z"/>
+  </svg>
+);
+
+/** Wraps selected text (or a placeholder) in an HTML alignment div. */
+function makeAlignCmd(align: 'left' | 'center' | 'right' | 'justify', icon: React.ReactNode): ICommand {
+  return {
+    name: `align-${align}`,
+    keyCommand: `align-${align}`,
+    buttonProps: { 'aria-label': `Align ${align}`, title: `Align ${align}` },
+    icon,
+    execute: (state, api) => {
+      const selected = state.selectedText || 'Your text here';
+      api.replaceSelection(`\n<div style="text-align:${align}">\n${selected}\n</div>\n`);
+    },
+  };
+}
+
 const GUIDE: Array<{
   group: string;
   items: Array<{ symbol: string; label: string; desc: string; example?: React.ReactNode }>;
@@ -65,6 +104,15 @@ const GUIDE: Array<{
       { symbol: '"',   label: 'Quote',        desc: 'Highlights a quote or important passage in a styled callout block.' },
       { symbol: '`a`', label: 'Inline code',  desc: 'Formats a short technical word in a fixed-width font (e.g. a filename).' },
       { symbol: '```', label: 'Code block',   desc: 'Inserts a multi-line block for programming code or technical content.' },
+    ],
+  },
+  {
+    group: 'Alignment',
+    items: [
+      { symbol: '⬤←', label: 'Align left',    desc: 'Aligns the selected text to the left margin (default reading direction).' },
+      { symbol: '⬤↔', label: 'Align centre',  desc: 'Centres the selected text horizontally on the page.' },
+      { symbol: '→⬤', label: 'Align right',   desc: 'Aligns the selected text to the right margin.' },
+      { symbol: '⬤⬤', label: 'Justify',       desc: 'Spreads text evenly so both left and right edges are flush (like a newspaper column).' },
     ],
   },
   {
@@ -127,6 +175,11 @@ export default function MarkdownEditor({
     },
   };
 
+  const alignLeftCmd   = makeAlignCmd('left',    AlignLeftIcon);
+  const alignCenterCmd = makeAlignCmd('center',  AlignCenterIcon);
+  const alignRightCmd  = makeAlignCmd('right',   AlignRightIcon);
+  const alignJustifyCmd = makeAlignCmd('justify', AlignJustifyIcon);
+
   const toolbar: ICommand[] = [
     commands.bold,
     commands.italic,
@@ -147,6 +200,11 @@ export default function MarkdownEditor({
     commands.code,
     commands.codeBlock,
     commands.quote,
+    commands.divider,
+    alignLeftCmd,
+    alignCenterCmd,
+    alignRightCmd,
+    alignJustifyCmd,
     commands.divider,
     commands.fullscreen,
   ];
