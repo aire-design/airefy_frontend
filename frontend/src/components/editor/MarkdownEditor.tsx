@@ -7,7 +7,7 @@ import MDEditor, { commands, type ICommand, type ContextStore } from '@uiw/react
 import '@uiw/react-md-editor/markdown-editor.css';
 import { uploadMedia } from '@/lib/api';
 import { ChevronDown, ChevronUp, Mic } from 'lucide-react';
-import MediaRecorderPanel from '@/components/editor/MediaRecorderPanel';
+import MediaRecorderPanel from './MediaRecorderPanel';
 
 interface MarkdownEditorProps {
   value: string;
