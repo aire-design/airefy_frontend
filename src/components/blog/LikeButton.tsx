@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { getLikeStatus, toggleLike } from '@/lib/api';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/context/AuthContext';
 
 interface LikeButtonProps {
   documentId: string;
