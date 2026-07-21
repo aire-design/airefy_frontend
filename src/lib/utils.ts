@@ -62,12 +62,13 @@ export function generateSlug(title: string | null | undefined): string {
 export function generateExcerpt(content: string | null | undefined, maxLength = 160): string {
   if (!content || typeof content !== 'string') return '';
   const plain = content
-    .replace(/#{1,6}\s/g, '')
-    .replace(/\*\*/g, '')
-    .replace(/\*/g, '')
-    .replace(/`[^`]*`/g, '')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\n+/g, ' ')
+    .replace(/<[^>]+>/g, '') // Strip HTML tags
+    .replace(/#{1,6}\s/g, '') // Strip headings
+    .replace(/\*\*/g, '') // Strip bold
+    .replace(/\*/g, '') // Strip italic
+    .replace(/`[^`]*`/g, '') // Strip code
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // Strip links and images but keep alt text
+    .replace(/\n+/g, ' ') // Replace newlines with space
     .trim();
 
   if (plain.length <= maxLength) return plain;

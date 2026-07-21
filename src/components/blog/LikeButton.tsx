@@ -2,55 +2,60 @@
 
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { getLikeStatus, toggleLike } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface LikeButtonProps {
   documentId: string;
 }
 
 export default function LikeButton({ documentId }: LikeButtonProps) {
-  const { user, token } = useAuth();
-  const router = useRouter();
+  const { token } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getLikeStatus(documentId, token)
-      .then((res) => {
+    if (typeof window !== 'undefined') {
+      if (!localStorage.getItem('guestId')) {
+        localStorage.setItem('guestId', 'guest-' + Math.random().toString(36).slice(2, 11));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    async function loadStatus() {
+      try {
+        const guestId = typeof window !== 'undefined' ? localStorage.getItem('guestId') : null;
+        const res = await getLikeStatus(documentId, token, guestId);
         setIsLiked(res.data.isLiked);
         setCount(res.data.count);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error('Failed to load like status', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadStatus();
   }, [documentId, token]);
 
-  const handleToggle = async () => {
-    if (!user || !token) {
-      router.push(`/login?from=${window.location.pathname}`);
-      return;
-    }
-    
-    // Optimistic update
-    const wasLiked = isLiked;
-    setIsLiked(!wasLiked);
-    setCount((prev) => (wasLiked ? prev - 1 : prev + 1));
+  const handleLike = async () => {
+    if (isLoading) return;
 
+    setIsLoading(true);
     try {
-      const res = await toggleLike(documentId, token);
+      const guestId = typeof window !== 'undefined' ? localStorage.getItem('guestId') : null;
+      const res = await toggleLike(documentId, token, guestId);
       setIsLiked(res.data.isLiked);
       setCount(res.data.count);
     } catch (err) {
-      // Revert on error
-      setIsLiked(wasLiked);
-      setCount((prev) => (wasLiked ? prev + 1 : prev - 1));
-      alert('Failed to update like. Please try again.');
+      console.error('Failed to toggle like', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <button disabled className="flex items-center gap-1.5 text-gray-400">
         <Heart className="h-5 w-5" />
@@ -61,7 +66,7 @@ export default function LikeButton({ documentId }: LikeButtonProps) {
 
   return (
     <button
-      onClick={handleToggle}
+      onClick={handleLike}
       className={`flex items-center gap-1.5 transition-colors ${
         isLiked ? 'text-red-500 hover:text-red-600' : 'text-gray-500 hover:text-gray-900'
       }`}

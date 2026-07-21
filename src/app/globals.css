@@ -58,6 +58,10 @@
   .prose-blog hr {
     @apply border-gray-200 my-8;
   }
+  /* Support alignment divs inserted by the editor toolbar */
+  .prose-blog div[style*="text-align"] {
+    margin-bottom: 1.25rem;
+  }
   .prose-blog table {
     @apply w-full border-collapse my-6;
   }

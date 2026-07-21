@@ -25,7 +25,20 @@ import RelatedPosts from '@/components/blog/RelatedPosts';
  */
 const markdownComponents: Components = {
   img({ src, alt, ...props }) {
-    const resolvedSrc = getMediaUrl(src as string);
+    let cleanSrc = src as string;
+    if (!cleanSrc) return null;
+
+    // Strip legacy hardcoded localhost URLs so getMediaUrl can apply the correct API_URL
+    if (cleanSrc.startsWith('http://localhost:8000/uploads/')) {
+      cleanSrc = cleanSrc.replace('http://localhost:8000', '');
+    }
+
+    // A bare filename (no slashes, no protocol) → treat as an uploaded file
+    if (!cleanSrc.startsWith('http') && !cleanSrc.startsWith('/')) {
+      cleanSrc = `/uploads/${cleanSrc}`;
+    }
+
+    const resolvedSrc = getMediaUrl(cleanSrc);
     if (!resolvedSrc) return null;
     return (
       // eslint-disable-next-line @next/next/no-img-element

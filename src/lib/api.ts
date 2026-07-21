@@ -244,11 +244,12 @@ export async function getComments(documentId: string): Promise<ApiListResponse<C
   return fetchAPI(`/articles/${documentId}/comments`, { revalidate: 10 });
 }
 
-export async function createComment(documentId: string, content: string, token: string): Promise<ApiResponse<Comment>> {
+export async function createComment(documentId: string, content: string, token?: string | null, guestName?: string): Promise<ApiResponse<Comment>> {
+  const options: RequestInit = token ? { headers: bearerHeader(token) } : {};
   return fetchAPI(`/articles/${documentId}/comments`, {
+    ...options,
     method: 'POST',
-    headers: bearerHeader(token),
-    body: JSON.stringify({ data: { content } }),
+    body: JSON.stringify({ data: { content, guestName } }),
   });
 }
 
@@ -259,18 +260,21 @@ export async function deleteComment(documentId: string, commentId: string, token
   });
 }
 
-export async function getLikeStatus(documentId: string, token?: string | null): Promise<ApiResponse<LikeStatus>> {
+export async function getLikeStatus(documentId: string, token?: string | null, guestId?: string | null): Promise<ApiResponse<LikeStatus>> {
   const options: RequestInit = token ? { headers: bearerHeader(token) } : {};
-  return fetchAPI(`/articles/${documentId}/like-status`, {
+  const url = guestId ? `/articles/${documentId}/like-status?guestId=${encodeURIComponent(guestId)}` : `/articles/${documentId}/like-status`;
+  return fetchAPI(url, {
     ...options,
     cache: 'no-store',
   });
 }
 
-export async function toggleLike(documentId: string, token: string): Promise<ApiResponse<LikeStatus>> {
+export async function toggleLike(documentId: string, token?: string | null, guestId?: string | null): Promise<ApiResponse<LikeStatus>> {
+  const options: RequestInit = token ? { headers: bearerHeader(token) } : {};
   return fetchAPI(`/articles/${documentId}/like`, {
+    ...options,
     method: 'POST',
-    headers: bearerHeader(token),
+    body: JSON.stringify({ data: { guestId } })
   });
 }
 

@@ -18,6 +18,7 @@ export default function CommentsSection({ documentId }: CommentsSectionProps) {
   const { user, token } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,12 +32,17 @@ export default function CommentsSection({ documentId }: CommentsSectionProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !newComment.trim()) return;
+    if (!newComment.trim()) return;
+    if (!user && !guestName.trim()) {
+      setError('Please enter your name before commenting.');
+      return;
+    }
 
     setSubmitting(true);
     setError('');
     try {
-      const res = await createComment(documentId, newComment, token);
+      const name = user ? undefined : guestName.trim();
+      const res = await createComment(documentId, newComment, token, name);
       setComments((prev) => [...prev, res.data]);
       setNewComment('');
     } catch (err) {
@@ -67,55 +73,60 @@ export default function CommentsSection({ documentId }: CommentsSectionProps) {
         Comments ({comments.length})
       </h3>
 
-      {/* Comment Form */}
-      {user ? (
-        <form onSubmit={handleSubmit} className="mb-10">
-          <div className="flex gap-4">
-            <Avatar username={user.username} avatar={user.avatar} size="md" />
-            <div className="flex-1">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Share your thoughts..."
-                className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 min-h-[80px]"
+      {/* Comment Form — always visible */}
+      <form onSubmit={handleSubmit} className="mb-10">
+        <div className="flex gap-4">
+          <Avatar username={user ? user.username : (guestName.trim() || '?')} avatar={user?.avatar} size="md" />
+          <div className="flex-1">
+            {/* Name field for guests */}
+            {!user && (
+              <input
+                type="text"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder="Your name *"
+                maxLength={60}
+                className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 mb-2"
                 disabled={submitting}
               />
-              {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-              <div className="mt-2 flex justify-end">
-                <Button type="submit" size="sm" loading={submitting} disabled={!newComment.trim()}>
+            )}
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder={user ? `Comment as ${user.username}…` : 'Share your thoughts…'}
+              className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 min-h-[80px]"
+              disabled={submitting}
+            />
+            {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+            <div className="mt-2 flex items-center justify-between gap-2">
+              {!user && (
+                <p className="text-xs text-gray-400">
+                  Commenting as a guest.{' '}
+                  <Link href="/login" className="underline hover:text-gray-700">Sign in</Link>{' '}
+                  for a richer experience.
+                </p>
+              )}
+              <div className="ml-auto">
+                <Button type="submit" size="sm" loading={submitting} disabled={!newComment.trim() || (!user && !guestName.trim())}>
                   Post Comment
                 </Button>
               </div>
             </div>
           </div>
-        </form>
-      ) : (
-        <div className="mb-10 rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
-          <p className="mb-4 text-gray-600 text-sm">Join the discussion</p>
-          <div className="flex justify-center gap-3">
-            <Link href={`/login?from=${typeof window !== 'undefined' ? window.location.pathname : '/'}`}>
-              <Button size="sm">Log in</Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="secondary" size="sm">Sign up</Button>
-            </Link>
-          </div>
         </div>
-      )}
+      </form>
 
       {/* Comments List */}
       <div className="space-y-6">
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-4">
-            <Link href={`/u/${comment.author.username}`}>
-              <Avatar username={comment.author.username} size="md" />
-            </Link>
+            <Avatar username={comment.author.username} size="md" />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2 text-sm">
-                  <Link href={`/u/${comment.author.username}`} className="font-semibold text-gray-900 hover:text-brand-600">
+                  <span className="font-semibold text-gray-900">
                     {comment.author.username}
-                  </Link>
+                  </span>
                   <span className="text-gray-400 text-xs">
                     {formatRelativeDate(comment.createdAt)}
                   </span>
