@@ -12,6 +12,9 @@ import { getMediaUrl } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Avatar from '@/components/ui/Avatar';
 import { Clock, Calendar } from 'lucide-react';
+import LikeButton from '@/components/blog/LikeButton';
+import CommentsSection from '@/components/blog/CommentsSection';
+import RelatedPosts from '@/components/blog/RelatedPosts';
 
 /**
  * Custom renderers for ReactMarkdown.
@@ -143,6 +146,9 @@ export default async function ArticlePage({ params }: PageProps) {
             )}
           </div>
         </div>
+        <div className="ml-auto">
+          <LikeButton documentId={article.documentId} />
+        </div>
       </div>
 
       {/* Content */}
@@ -155,6 +161,12 @@ export default async function ArticlePage({ params }: PageProps) {
           {article.content}
         </ReactMarkdown>
       </div>
+
+      {/* Related Posts */}
+      <RelatedPosts documentId={article.documentId} />
+
+      {/* Comments */}
+      <CommentsSection documentId={article.documentId} />
 
       {/* Back link */}
       <div className="mt-16 border-t border-gray-200 pt-8">

@@ -58,6 +58,22 @@ export interface Article {
   updatedAt: string;
   author: UserProfile | null;
   tags: Tag[];
+  likesCount?: number;
+  commentsCount?: number;
+}
+
+export interface Comment {
+  id: number;
+  documentId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  author: UserProfile;
+}
+
+export interface LikeStatus {
+  isLiked: boolean;
+  count: number;
 }
 
 export interface Certification {

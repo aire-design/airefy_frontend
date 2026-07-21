@@ -10,6 +10,8 @@ import type {
   Tag,
   UpdateArticleInput,
   UploadedFile,
+  Comment,
+  LikeStatus,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -230,6 +232,44 @@ export async function deleteArticle(
 ): Promise<void> {
   await fetchAPI(`/articles/${documentId}`, {
     method: 'DELETE',
+    headers: bearerHeader(token),
+  });
+}
+
+export async function getRelatedArticles(documentId: string): Promise<ApiListResponse<Article>> {
+  return fetchAPI(`/articles/${documentId}/related`, { revalidate: 120 });
+}
+
+export async function getComments(documentId: string): Promise<ApiListResponse<Comment>> {
+  return fetchAPI(`/articles/${documentId}/comments`, { revalidate: 10 });
+}
+
+export async function createComment(documentId: string, content: string, token: string): Promise<ApiResponse<Comment>> {
+  return fetchAPI(`/articles/${documentId}/comments`, {
+    method: 'POST',
+    headers: bearerHeader(token),
+    body: JSON.stringify({ data: { content } }),
+  });
+}
+
+export async function deleteComment(documentId: string, commentId: string, token: string): Promise<void> {
+  await fetchAPI(`/articles/${documentId}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: bearerHeader(token),
+  });
+}
+
+export async function getLikeStatus(documentId: string, token?: string | null): Promise<ApiResponse<LikeStatus>> {
+  const options: RequestInit = token ? { headers: bearerHeader(token) } : {};
+  return fetchAPI(`/articles/${documentId}/like-status`, {
+    ...options,
+    cache: 'no-store',
+  });
+}
+
+export async function toggleLike(documentId: string, token: string): Promise<ApiResponse<LikeStatus>> {
+  return fetchAPI(`/articles/${documentId}/like`, {
+    method: 'POST',
     headers: bearerHeader(token),
   });
 }
