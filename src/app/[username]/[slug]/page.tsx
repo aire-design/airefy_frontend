@@ -2,15 +2,34 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeRaw from 'rehype-raw';
 import 'highlight.js/styles/github.css';
 import { getArticleBySlug } from '@/lib/api';
 import { getMediaUrl } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Avatar from '@/components/ui/Avatar';
 import { Clock, Calendar } from 'lucide-react';
+
+/**
+ * Custom renderers for ReactMarkdown.
+ *
+ * `img` — Images in markdown are stored with relative /uploads/... URLs that
+ * point to the backend server, not the Next.js frontend. We resolve them
+ * through getMediaUrl() so the correct absolute URL is used.
+ */
+const markdownComponents: Components = {
+  img({ src, alt, ...props }) {
+    const resolvedSrc = getMediaUrl(src as string);
+    if (!resolvedSrc) return null;
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={resolvedSrc} alt={alt ?? ''} {...props} />
+    );
+  },
+};
 
 interface PageProps {
   params: Promise<{ username: string; slug: string }>;
@@ -128,7 +147,11 @@ export default async function ArticlePage({ params }: PageProps) {
 
       {/* Content */}
       <div className="prose-blog">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw, rehypeHighlight]}
+          components={markdownComponents}
+        >
           {article.content}
         </ReactMarkdown>
       </div>
