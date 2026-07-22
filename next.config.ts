@@ -22,6 +22,14 @@ const nextConfig: NextConfig = {
         hostname: '**',
         pathname: '/uploads/**',
       },
+      {
+        // Cloudinary CDN — images/videos uploaded via the Cloudinary path
+        // have URLs like https://res.cloudinary.com/<cloud>/image/upload/...
+        // which do NOT match /uploads/** so we must allow this host separately.
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
   },
 };
