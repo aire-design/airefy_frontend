@@ -44,10 +44,10 @@ if USE_CLOUDINARY:
         api_secret=CLOUDINARY_API_SECRET,
         secure=True,
     )
-    _logger.info(
-        "[Cloudinary] ✅ Active — cloud_name=%r, api_key=%r",
-        CLOUDINARY_CLOUD_NAME,
-        CLOUDINARY_API_KEY[:6] + "***" if CLOUDINARY_API_KEY else "",
+    print(
+        f"[Cloudinary] ✅ Active — cloud_name={CLOUDINARY_CLOUD_NAME!r}, "
+        f"api_key={CLOUDINARY_API_KEY[:6] + '***' if CLOUDINARY_API_KEY else ''}",
+        flush=True,
     )
 else:
     _missing = [
@@ -68,9 +68,9 @@ else:
               "(Environment tab) and redeploy."
         )
     else:
-        _logger.warning(
+        print(
             "[Cloudinary] ⚠️  Inactive (local dev fallback). "
-            "Missing vars: %s",
-            ", ".join(_missing),
+            f"Missing vars: {', '.join(_missing)}",
+            flush=True,
         )
 
