@@ -128,3 +128,16 @@ app.mount("/uploads", StaticFiles(directory=str(config.UPLOAD_DIR)), name="uploa
 @app.get("/")
 def root():
     return {"name": "Airefy API", "docs": "/docs"}
+
+
+@app.get("/api/debug-cloudinary")
+def debug_cloudinary():
+    """Diagnostic endpoint to check if Cloudinary env vars are loaded."""
+    return {
+        "USE_CLOUDINARY": config.USE_CLOUDINARY,
+        "IS_PRODUCTION": config.IS_PRODUCTION,
+        "CLOUD_NAME": config.CLOUDINARY_CLOUD_NAME or "<missing>",
+        "API_KEY": (config.CLOUDINARY_API_KEY[:6] + "***") if config.CLOUDINARY_API_KEY else "<missing>",
+        "HAS_SECRET": bool(config.CLOUDINARY_API_SECRET),
+        "RENDER_ENV_VAR": os.getenv("RENDER", "<missing>")
+    }
