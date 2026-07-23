@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 
@@ -22,6 +23,12 @@ CORS_ORIGINS = ["*"]
     # for origin in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
     # if origin.strip()
 
+# ── Environment detection ──────────────────────────────────────────────────────
+# Render automatically sets RENDER=true in every deployed service.
+IS_PRODUCTION = os.getenv("RENDER", "").lower() == "true"
+
+_logger = logging.getLogger(__name__)
+
 # ── Cloudinary ────────────────────────────────────────────────────────────────
 CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "")
@@ -37,4 +44,33 @@ if USE_CLOUDINARY:
         api_secret=CLOUDINARY_API_SECRET,
         secure=True,
     )
+    _logger.info(
+        "[Cloudinary] ✅ Active — cloud_name=%r, api_key=%r",
+        CLOUDINARY_CLOUD_NAME,
+        CLOUDINARY_API_KEY[:6] + "***" if CLOUDINARY_API_KEY else "",
+    )
+else:
+    _missing = [
+        name
+        for name, val in [
+            ("CLOUDINARY_CLOUD_NAME", CLOUDINARY_CLOUD_NAME),
+            ("CLOUDINARY_API_KEY", CLOUDINARY_API_KEY),
+            ("CLOUDINARY_API_SECRET", CLOUDINARY_API_SECRET),
+        ]
+        if not val
+    ]
+    if IS_PRODUCTION:
+        # Hard error — never silently write to Render's ephemeral disk.
+        raise RuntimeError(
+            "[Cloudinary] ❌ Missing credentials in production: "
+            + ", ".join(_missing)
+            + ". Set these environment variables in the Render dashboard "
+              "(Environment tab) and redeploy."
+        )
+    else:
+        _logger.warning(
+            "[Cloudinary] ⚠️  Inactive (local dev fallback). "
+            "Missing vars: %s",
+            ", ".join(_missing),
+        )
 
